@@ -1,3 +1,19 @@
+'''username: tempuser
+token: 5YrZnB8Z6IwZSTwsv3PwoE2jtP8QSiWONvfso7wvbS9mdNSV
+password: tempuser
+email: tempuser@tempmail.com
+
+BUG: In login part if you send wrong token it will work!
+     the wrost part is it return the valid token!
+     so if you guess the username and password you can get the token
+     which not possiable in moste case.
+
+TODO: Check the kwargs keys to be valid keys.
+
+I think I'm blocked!
+
+'''
+
 import requests
 import json
 
@@ -8,8 +24,25 @@ class Url:
     SUBMIT_INCOME = BASE_URL + '/submit/income/'
     GET_INCOMES = BASE_URL + '/q/incomes/'
     STATS = BASE_URL + '/q/generalstat/'
+    LOGIN = BASE_URL + '/accounts/login/'
+    REGISTER = BASE_URL + '/accounts/register/'
+   
     
-
+class Account:
+    def __init__(self, token):
+        self.token = token
+        
+    def login(self, username, password):
+        data = {'token': self.token, 'username': username, 'password': password}
+        response = requests.post(Url.LOGIN, data=data)
+        return response.json()
+    
+    def register(self, **kwargs):
+        kwargs['token'] = self.token
+        response = requests.post(Url.REGISTER, data=kwargs)
+        return response
+    
+    
 class Expense:
     def __init__(self, token=''):
         self.token = token
@@ -90,11 +123,7 @@ class Income:
             return 'Problem' + str(response.status_code)
     
 if __name__ == '__main__':
-    exp = Expense(token='DnjeBhgRBvjDk9YbnDxEwCZvN7GJUUgama3i5nna0VpABQX9')
-    inc= Income(token='DnjeBhgRBvjDk9YbnDxEwCZvN7GJUUgama3i5nna0VpABQX9')
-    r = exp.get_expenses()
-    s = exp.stats()
-    x = inc.get_incomes(number=5)
-    #print(x)
-    #for item in x:
-        #print(item['fields']['date'], item['fields']['text'], item['fields']['amount'])
+    
+    acc = Account(token='5YrZnB8Z6IwZSTwsv3PwoE2jtP8QSiWONvfso7wvbS9mdNSV')
+    r = acc.register(username='someuser1', email='some@email.com', password='123password')
+    print(r)
