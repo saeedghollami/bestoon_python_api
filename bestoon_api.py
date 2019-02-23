@@ -47,16 +47,35 @@ class Income:
         self.token = token
         
     def add(self, **kwargs):
-        pass
+        kwargs['token'] = self.token  # add token to data
+        response = requests.post(Url.SUBMIT_INCOME, data=kwargs)
+        if self._check_response(response):
+            if response.json()['status'] == 'ok':
+                return 'Added Successfuly.  :-)'
+            else:
+                return 'Some Problem had happend :-( ' + str(response.status_code)
+        else:
+            return 'Connection Failed! '+ str(response.status_code)
     
     def edit(self, **kwargs):
         pass
     
-    def stat(self, **kwargs):
-        pass
+    def stats(self, **kwargs):
+        data = {'token': self.token}
+        response = requests.post(Url.STATS, data=data)
+        if self._check_response(response):
+            expenses = response.json()['income']
+            content = f'Total of Incomes: {expenses.get("amount__sum")}\n' \
+                      f'Number of Incomes: {expenses.get("amount__count")}'
+            return content
+        else:
+            return 'Connection Failed! '+ str(response.status_code)
     
     
 if __name__ == '__main__':
     exp = Expense(token='DnjeBhgRBvjDk9YbnDxEwCZvN7GJUUgama3i5nna0VpABQX9')
+    inc= Expense(token='DnjeBhgRBvjDk9YbnDxEwCZvN7GJUUgama3i5nna0VpABQX9')
     r = exp.stats()
+    s = inc.stats()
     print(r)
+    print(s)
