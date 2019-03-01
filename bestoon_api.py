@@ -37,7 +37,7 @@ class Account:
         
         Returns:
         -------
-        out: Dict
+        out:
             if login was successful -> {'token': 'yourtoken', 'status' = 'ok'}
             if user wasn't exist -> 404
             if password was wrong -> {'status': 'error'}
@@ -72,20 +72,44 @@ class Account:
         
         return response.status_code  
     
-    def register(self, **kwargs):
-        ''' No api method implemented!
-        Users have to register in the offical website.
-        '''
-        pass
-    
+
     def whoami(self, token):
-        ''' pass the token and findout username
-            input: token
-            output: username
-        '''
+        """
+            Findout username with specifying token
+
+        Parameters:
+        -----------
+        token: str 
+            The token which recived after registeration.
+
+        Returns:
+        --------
+        out:
+            if token was correct -> {'user': 'yourusername'}
+            if token wan't correct -> 404
+
+        Examples:
+        ---------
+        >>> account = Account()
+        
+        >>> response = account.whoami(token='5YrZnB8Z6IwZSTwsv3PwoE2jtP8QSiWONvfso7wvbS9mdNSV')
+        >>> response
+        {'user': 'tempuser'}
+
+        >>> response = account.whoami(token='this token is not valid')
+        >>> response
+        '404 Token not Found'
+
+        """
         data = {'token': token}
         response = requests.post(Url.WHOAMI, data=data)
-        return response.json()
+
+        if response.status_code == 200:
+            return response.json()
+        elif response.status_code == 404:
+            return '404 Token not Found'
+        else:
+            return response.status_code
 
     
 class Expense:
@@ -164,3 +188,6 @@ class Income:
 if __name__ == '__main__':
     import doctest
     doctest.testmod()
+    # account = Account()
+    # response = account.whoami(token='this token is not valid')
+    # print(response)
