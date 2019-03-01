@@ -1,23 +1,4 @@
-'''username: tempuser
-token: 5YrZnB8Z6IwZSTwsv3PwoE2jtP8QSiWONvfso7wvbS9mdNSV
-password: tempuser
-email: tempuser@tempmail.com
 
-BUG: In login part if you send wrong token it will work!
-     the wrost part is it return the valid token!
-     so if you guess the username and password you can get the token
-     which not possiable in most cases.
-
-TODO: Check the kwargs keys to be valid keys.
-
-I think I'm blocked!
-'''
-'''
-token=mg1mQ2cVOgo2Dv2cPCEFDkVzOHRql4htrm3kmYMk4zB1W7wb
-username=nobody
-email=nobody@nobody.com
-password=nobody
-'''
 
 import requests
 import json
@@ -35,13 +16,61 @@ class Url:
    
     
 class Account:
-    def __init__(self):
-        pass
+    """ 
+        Manage User Account
+        To use Account you have to register from the offical website at
+        http://www.bestoon.ir/register
+     """
         
     def login(self, username, password):
+        """ 
+        Login to the account with specifying username and password
+
+
+        Parameters:
+        -----------
+        username: str 
+            The username which entered at the registeration.
+        password: str 
+            The password which entered at the registeration.
+
+        
+        Returns:
+        -------
+        out: Dict
+            if login was successful -> {'token': 'yourtoken', 'status' = 'ok'}
+            if user wasn't exist -> 404
+            if password was wrong -> {'status': 'error'}
+
+
+        Examples:
+        ---------
+        >>> account = Account()
+
+        >>> response = account.login(username='tempuser', password='temppass')
+        >>> response
+        {'token': '5YrZnB8Z6IwZSTwsv3PwoE2jtP8QSiWONvfso7wvbS9mdNSV', 'result': 'ok'}
+
+        >>> wrong_pass_acc = account.login(username='tempuser', password='wrongpass')
+        >>> wrong_pass_acc
+        'Password is incorrect'
+
+        >>> wrong_user_acc = account.login(username='usernotexist', password='wrongpass')
+        >>> wrong_user_acc
+        '404 User Not Found'
+        """
         data = {'username': username, 'password': password}
         response = requests.post(Url.LOGIN, data=data)
-        return response.json()
+        if  response.status_code == 200 and response.json()['result'] == 'ok':
+            return response.json()
+        elif  response.status_code == 200 and response.json()['result'] == 'error':
+            return 'Password is incorrect'
+        elif response.status_code == 404:
+            return '404 User Not Found'
+        else:
+            return response.status_code
+        
+        return response.status_code  
     
     def register(self, **kwargs):
         ''' No api method implemented!
@@ -133,7 +162,5 @@ class Income:
             return 'Problem' + str(response.status_code)
     
 if __name__ == '__main__':
-    token='5YrZnB8Z6IwZSTwsv3PwoE2jtP8QSiWONvfso7wvbS9mdNSV'
-    acc = Account()
-    re = acc.whoami(token)
-    print(re)
+    import doctest
+    doctest.testmod()
