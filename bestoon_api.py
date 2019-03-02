@@ -72,7 +72,6 @@ class Account:
         
         return response.status_code  
     
-
     def whoami(self, token):
         """
             Findout username with specifying token
@@ -113,81 +112,214 @@ class Account:
 
     
 class Expense:
+    """ Manage expeses """
     def __init__(self, token=''):
+        """ 
+        Initialize a expense object 
+
+        Parameters:
+        -----------
+        token: str 
+            48 random charcter string, provided after registeration.
+
+        Returns:
+        --------
+        out: an expense object
+            if token was not valid -> 404
+
+        """
         self.token = token
-        
-    def _check_response(self, response):
-        return response.status_code == 200
     
     def add(self, **kwargs):
+        """
+        Add an expense to expenses
+        
+        Parameters:
+        -----------
+        amount: int
+            the money that user expesed. defualt is 0
+        text: str
+            discription of the expese. default is empty string
+        data: Datetime
+            the datetime of the expese, optional, defualt is today datetime
+            
+        Returns:
+        --------
+        out: {'status': 'ok'}
+
+        Examples:
+        ---------
+
+        >>> expense = Expense(token='5YrZnB8Z6IwZSTwsv3PwoE2jtP8QSiWONvfso7wvbS9mdNSV')
+        >>> r = expense.add(amount=12000, text='some expense')
+        >>> r
+        {'status': 'ok'}
+
+        """
         kwargs['token'] = self.token  # add token to data
         response = requests.post(Url.SUBMIT_EXPENSE, data=kwargs)
-        if self._check_response(response) and response.json()['status'] == 'ok':
-                return 'Added Successfuly.  :-)'
+
+        if response.status_code == 200:
+            return response.json()
         else:
-            return 'Connection Failed! '+ str(response.status_code)
-            
-    
-    def edit(self, **kwargs):
-        return 'Not Implemented yet!'
+            return response.status_code
     
     def stats(self):
+        """
+        Returns sum of amount and number of amount expense
+        
+        Parameters:
+        -----------
+            
+        Returns:
+        --------
+        out: dict
+            returns -> {'amount__sum': 123, 'amount__count': 123}
+
+        Examples:
+        ---------
+
+        """
+
         data = {'token': self.token}
         response = requests.post(Url.STATS, data=data)
-        if self._check_response(response):
-            content = response.json()['expense']
-            return content
+
+        if response.status_code == 200:
+            return response.json()['expense']
         else:
-            return 'Connection Failed! '+ str(response.status_code)
+            return response.status_code
         
     def get_expenses(self, number=10):
+        """
+        Returns list of latest expenses, if number not provided defualt is 10
+        
+        Parameters:
+        -----------
+        number: int
+            number of expenses to query them, defualt: 10
+            
+        Returns:
+        --------
+        out: list of dict
+            if token was not valid -> 404
+
+        Examples:
+        ---------
+
+        """
         data = {'token': self.token, 'number': number}
         response = requests.post(Url.GET_EXPENSES, data=data)
-        if self._check_response(response):
-            content = json.loads(response.json())
-            return content
+        if response.status_code == 200:
+            return json.loads(response.json())
         else:
-            return 'Problem' + str(response.status_code)
+            return response.status_code
 
     
 class Income:
+    """ Manage Incomes"""
     def __init__(self, token):
+        """ 
+        Initialize a income object 
+
+        Parameters:
+        -----------
+        token: str 
+            48 random charcter string, provided after registeration.
+
+        Returns:
+        --------
+        out: an income object
+            if token was not valid -> 404
+
+        Examples:
+        ---------
+        >>> income = Income(token='5YrZnB8Z6IwZSTwsv3PwoE2jtP8QSiWONvfso7wvbS9mdNSV')
+        """
         self.token = token
-    def _check_response(self, response):
-        return response.status_code == 200
         
     def add(self, **kwargs):
+        """
+        Add an income to incomes
+        
+        Parameters:
+        -----------
+        amount: int
+            the money that user expesed. defualt is 0
+        text: str
+            discription of the expese. default is empty string
+        data: Datetime
+            the datetime of the expese, optional, defualt is today datetime
+            
+        Returns:
+        --------
+        out: {'status': 'ok'}
+
+        Examples:
+        ---------
+
+        >>> income = Income(token='5YrZnB8Z6IwZSTwsv3PwoE2jtP8QSiWONvfso7wvbS9mdNSV')
+        >>> r = income.add(amount=12000, text='some income')
+        >>> r
+        {'status': 'ok'}
+
+        """
         kwargs['token'] = self.token  # add token to data
         response = requests.post(Url.SUBMIT_INCOME, data=kwargs)
-        if self._check_response(response) and response.json()['status'] == 'ok':
-                return 'Added Successfuly.  :-)'
+        if response.status_code == 200:
+            return response.json()
         else:
-            return 'Connection Failed! '+ str(response.status_code)
+            return response.status_code
+
     
-    def edit(self, **kwargs):
-        pass
-    
-    def stats(self, **kwargs):
+    def stats(self):
+        """
+        Returns sum of amounts and number of amounts for all incomes
+        
+        Parameters:
+        -----------
+            
+        Returns:
+        --------
+        out: dict
+
+        """
+
         data = {'token': self.token}
         response = requests.post(Url.STATS, data=data)
-        if self._check_response(response):
-            content = response.json()['income']
-            return content
+
+        if response.status_code == 200:
+            return response.json()['income']
         else:
-            return 'Connection Failed! '+ str(response.status_code)
-    
+            return response.status_code
+
     def get_incomes(self, number=10):
+        """
+        Returns list of latest incomes, if number not provided defualt is 10
+        
+        Parameters:
+        -----------
+        number: int
+            number of incomes to query them, defualt: 10
+            
+        Returns:
+        --------
+        out: list of dict
+            if token was not valid -> 404
+
+        Examples:
+        ---------
+
+        """
         data = {'token': self.token, 'number': number}
         response = requests.post(Url.GET_INCOMES, data=data)
-        if self._check_response(response):
-            content = json.loads(response.json())
-            return content
+
+        if response.status_code == 200:
+            return json.loads(response.json())
         else:
-            return 'Problem' + str(response.status_code)
+            return response.status_code
     
 if __name__ == '__main__':
+    """ Some Test """
     import doctest
     doctest.testmod()
-    # account = Account()
-    # response = account.whoami(token='this token is not valid')
-    # print(response)
+    
